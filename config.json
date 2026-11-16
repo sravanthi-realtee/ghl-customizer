@@ -112,6 +112,7 @@
         "AI Agents",
         "Memberships",
         "Mobile App",
+        "WA QR2",
         "Business Profile",
         "Billing",
         "Users",
@@ -123,7 +124,7 @@
         "Private Integrations",
         "Tags",
         "Brand Boards",
-        "WA QR2"
+        "Audit Logs"
       ],
       "hideMenus": [
         "sb_payments",
@@ -131,6 +132,7 @@
         "sb_automation",
         "sb_sites",
         "sb_app-media",
+        "sb_reputation",
         "sb_reporting",
         "sb_app-marketplace",
         "sb_whatsapp",
@@ -142,7 +144,11 @@
         "sb_labs",
         "sb_saas-billing",
         "sb_conversations_providers"
-      ]
+      ],
+      "menuNames": {
+        "sb_contacts": "clients",
+        "sb_opportunities": "sales pipeline"
+      }
     },
     "eHSTNuzvw9Vek4jMknK1": {
       "brandColor": "#0f766e",
@@ -152,6 +158,7 @@
         "AI Agents",
         "Memberships",
         "Mobile App",
+        "WA QR2",
         "Business Profile",
         "Billing",
         "Users",
@@ -163,7 +170,7 @@
         "Private Integrations",
         "Tags",
         "Brand Boards",
-        "WA QR2"
+        "Audit Logs"
       ],
       "hideMenus": [
         "sb_payments",
@@ -171,6 +178,7 @@
         "sb_automation",
         "sb_sites",
         "sb_app-media",
+        "sb_reputation",
         "sb_reporting",
         "sb_app-marketplace",
         "sb_whatsapp",
@@ -182,7 +190,11 @@
         "sb_labs",
         "sb_saas-billing",
         "sb_conversations_providers"
-      ]
+      ],
+      "menuNames": {
+        "sb_contacts": "clients",
+        "sb_opportunities": "sales pipeline"
+      }
     },
     "BYNHWalUytfAzIF53Msw": {
       "brandColor": "#0f766e",
@@ -192,6 +204,7 @@
         "AI Agents",
         "Memberships",
         "Mobile App",
+        "WA QR2",
         "Business Profile",
         "Billing",
         "Users",
@@ -203,7 +216,7 @@
         "Private Integrations",
         "Tags",
         "Brand Boards",
-        "WA QR2"
+        "Audit Logs"
       ],
       "hideMenus": [
         "sb_payments",
@@ -211,6 +224,7 @@
         "sb_automation",
         "sb_sites",
         "sb_app-media",
+        "sb_reputation",
         "sb_reporting",
         "sb_app-marketplace",
         "sb_whatsapp",
@@ -222,7 +236,11 @@
         "sb_labs",
         "sb_saas-billing",
         "sb_conversations_providers"
-      ]
+      ],
+      "menuNames": {
+        "sb_contacts": "clients",
+        "sb_opportunities": "sales pipeline"
+      }
     },
     "C9b8vqSkoqyL0iq3Z2nm": {
       "brandColor": "#0f766e",
@@ -232,6 +250,7 @@
         "AI Agents",
         "Memberships",
         "Mobile App",
+        "WA QR2",
         "Business Profile",
         "Billing",
         "Users",
@@ -243,7 +262,7 @@
         "Private Integrations",
         "Tags",
         "Brand Boards",
-        "WA QR2"
+        "Audit Logs"
       ],
       "hideMenus": [
         "sb_payments",
@@ -251,6 +270,7 @@
         "sb_automation",
         "sb_sites",
         "sb_app-media",
+        "sb_reputation",
         "sb_reporting",
         "sb_app-marketplace",
         "sb_whatsapp",
@@ -262,7 +282,11 @@
         "sb_labs",
         "sb_saas-billing",
         "sb_conversations_providers"
-      ]
+      ],
+      "menuNames": {
+        "sb_contacts": "clients",
+        "sb_opportunities": "sales pipeline"
+      }
     },
     "R9k3EzZkDANa4emKSizB": {
       "brandColor": "#0f766e",
@@ -272,6 +296,7 @@
         "AI Agents",
         "Memberships",
         "Mobile App",
+        "WA QR2",
         "Business Profile",
         "Billing",
         "Users",
@@ -283,7 +308,7 @@
         "Private Integrations",
         "Tags",
         "Brand Boards",
-        "WA QR2"
+        "Audit Logs"
       ],
       "hideMenus": [
         "sb_payments",
@@ -291,6 +316,7 @@
         "sb_automation",
         "sb_sites",
         "sb_app-media",
+        "sb_reputation",
         "sb_reporting",
         "sb_app-marketplace",
         "sb_whatsapp",
@@ -302,7 +328,11 @@
         "sb_labs",
         "sb_saas-billing",
         "sb_conversations_providers"
-      ]
+      ],
+      "menuNames": {
+        "sb_contacts": "clients",
+        "sb_opportunities": "sales pipeline"
+      }
     },
     "vtEMaPhf7DS8CH30gakW": {
       "brandColor": "#0f766e",
@@ -312,6 +342,7 @@
         "AI Agents",
         "Memberships",
         "Mobile App",
+        "WA QR2",
         "Business Profile",
         "Billing",
         "Users",
@@ -323,7 +354,7 @@
         "Private Integrations",
         "Tags",
         "Brand Boards",
-        "WA QR2"
+        "Audit Logs"
       ],
       "hideMenus": [
         "sb_payments",
@@ -331,6 +362,7 @@
         "sb_automation",
         "sb_sites",
         "sb_app-media",
+        "sb_reputation",
         "sb_reporting",
         "sb_app-marketplace",
         "sb_whatsapp",
@@ -342,7 +374,11 @@
         "sb_labs",
         "sb_saas-billing",
         "sb_conversations_providers"
-      ]
+      ],
+      "menuNames": {
+        "sb_contacts": "clients",
+        "sb_opportunities": "sales pipeline"
+      }
     }
   }
 }
