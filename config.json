@@ -100,7 +100,49 @@
       "menuNames": {
         "sb_contacts": "clients",
         "sb_opportunities": "sales pipeline"
-      }
+      },
+      "moveMenus": [
+        {
+          "title": "WA QR2",
+          "before": "sb_settings"
+        },
+        {
+          "title": "sb_app-media",
+          "before": "WA QR2"
+        },
+        {
+          "title": "sb_sites",
+          "before": "sb_app-media"
+        },
+        {
+          "title": "sb_automation",
+          "before": "sb_sites"
+        },
+        {
+          "title": "AI Agents",
+          "before": "sb_automation"
+        },
+        {
+          "title": "sb_opportunities",
+          "before": "AI Agents"
+        },
+        {
+          "title": "sb_contacts",
+          "before": "sb_opportunities"
+        },
+        {
+          "title": "sb_calendars",
+          "before": "sb_contacts"
+        },
+        {
+          "title": "sb_conversations",
+          "before": "sb_calendars"
+        },
+        {
+          "title": "DashBoard",
+          "before": "sb_conversations"
+        }
+      ]
     }
   },
   "users": {
