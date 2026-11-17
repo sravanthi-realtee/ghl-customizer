@@ -82,7 +82,6 @@
         "sb_domains-urlRedirects",
         "sb_external-tracking",
         "sb_objects",
-        "sb_labs",
         "sb_saas-billing",
         "sb_conversations_providers"
       ],
@@ -97,8 +96,8 @@
         "Audit Logs"
       ],
       "menuNames": {
-        "sb_contacts": "clients",
-        "sb_opportunities": "sales pipeline"
+        "sb_contacts": "Clients",
+        "sb_opportunities": "Sales Pipeline"
       },
       "moveMenus": [
         {
