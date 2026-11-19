@@ -78,7 +78,6 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
       <h1>Brand Studio</h1>
       <p class="sub">Choose who the settings are for, change them, and watch the preview.</p>
     </div>
-    <button type="button" class="utop hidden" id="userBtn">Users</button>
   </div>
 
   <div class="card hidden" id="login">
@@ -90,6 +89,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
 
   <div id="app" class="hidden">
     <div class="card">
+      <div style="display:flex;justify-content:flex-end"><button type="button" class="utop hidden" id="userBtn">Users</button></div>
       <div id="locBox">
         <label for="locSearch" style="margin-top:0">Sub-accounts <span class="hint">tick one or more</span></label>
         <input type="text" id="locSearch" placeholder="Search sub-accounts" autocomplete="off">
@@ -121,6 +121,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
           <button type="button" class="tab on" id="tabMenu">Menu</button>
           <button type="button" class="tab" id="tabSub">Settings menu</button>
           <button type="button" class="tab" id="tabTheme">Theme</button>
+          <button type="button" class="utop" id="userBtn2" style="margin-left:auto">Users</button>
         </div>
 
         <div id="panelMenu">
@@ -736,12 +737,13 @@ function fill() {
   var t = target();
   lastFill = t.id;
   say("");
-  if (!t.id) { $("studio").classList.add("hidden"); return; }
+  if (!t.id) { $("studio").classList.add("hidden"); syncUserBtn(); return; }
   api("config").then(function (cfg) {
     CFG = cfg;
     var cur = ((cfg[t.scope] || {})[t.id] || {});
     loadSettings(cur, false);
     $("studio").classList.remove("hidden");
+    syncUserBtn();
   }).catch(function (e) { say(e.message, "err"); });
 }
 function userChanged() {
@@ -820,7 +822,7 @@ function start() {
   api("locations").then(function (list) {
     $("login").classList.add("hidden");
     $("app").classList.remove("hidden");
-    $("userBtn").classList.remove("hidden");
+    syncUserBtn();
     list.sort(function (a, b) { return a.name.localeCompare(b.name); });
     LOCS = list;
     buildLocs();
@@ -836,7 +838,7 @@ function start() {
   }).catch(function (e) {
     sessionStorage.removeItem("adminPw");
     $("app").classList.add("hidden");
-    $("userBtn").classList.add("hidden");
+    syncUserBtn();
     $("login").classList.remove("hidden");
     $("msg1").textContent = pw ? e.message : "";
   });
@@ -853,14 +855,25 @@ function setScope(sc) {
   SCOPE = sc;
   $("locBox").classList.toggle("hidden", sc !== "subaccounts");
   $("userBox").classList.toggle("hidden", sc !== "users");
-  $("userBtn").textContent = sc === "users" ? "\u2190 Sub-accounts" : "Users";
   $("studio").classList.add("hidden");
   lastFill = "";
   say("");
+  syncUserBtn();
   if (sc === "users") userChanged();
   else locChanged();
 }
-$("userBtn").onclick = function () { setScope(SCOPE === "users" ? "subaccounts" : "users"); };
+// The Users button sits in the tabs row (top right of the settings card).
+// Before a sub-account/user is picked that row is hidden, so a copy shows in the top card instead.
+function syncUserBtn() {
+  var txt = SCOPE === "users" ? "\u2190 Sub-accounts" : "Users";
+  $("userBtn").textContent = txt;
+  $("userBtn2").textContent = txt;
+  var loggedIn = !$("app").classList.contains("hidden");
+  $("userBtn").classList.toggle("hidden", !loggedIn || !$("studio").classList.contains("hidden"));
+}
+function toggleScope() { setScope(SCOPE === "users" ? "subaccounts" : "users"); }
+$("userBtn").onclick = toggleScope;
+$("userBtn2").onclick = toggleScope;
 $("locSearch").oninput = buildLocs;
 $("lAll").onclick = function () {
   shownLocs().forEach(function (l) { if (locSel.indexOf(l.id) === -1) locSel.push(l.id); });
