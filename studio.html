@@ -13,13 +13,15 @@ main{max-width:1000px;margin:28px auto;padding:0 16px}
 h1{font-size:24px;margin:0 0 2px}
 h3{font-size:14px;margin:22px 0 8px}
 .sub{color:var(--mute);margin:0 0 18px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.utop{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+.utop:hover{border-color:var(--accent)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
 label{display:block;font-weight:600;margin:12px 0 5px}
 .hint{color:var(--mute);font-weight:400;font-size:13px}
 input[type=text],input[type=password],select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font:inherit}
 input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .hidden{display:none!important}
-.bar{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .studio{display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start}
 .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .tab{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
@@ -66,13 +68,18 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
 .pvtb{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px}
 .pvtb b{display:block;margin-bottom:4px}
 .chip{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:2px 8px;margin:2px 4px 2px 0;background:var(--bg)}
-@media(max-width:760px){.studio{grid-template-columns:1fr}.pvwrap{position:static}.bar{grid-template-columns:1fr}.mrow{grid-template-columns:34px 1fr 64px}.mrow .rn,.badge{display:none}.cgrid{grid-template-columns:1fr}}
+@media(max-width:760px){.studio{grid-template-columns:1fr}.pvwrap{position:static}.mrow{grid-template-columns:34px 1fr 64px}.mrow .rn,.badge{display:none}.cgrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
-  <h1>Brand Studio</h1>
-  <p class="sub">Choose who the settings are for, change them, and watch the preview.</p>
+  <div class="top">
+    <div>
+      <h1>Brand Studio</h1>
+      <p class="sub">Choose who the settings are for, change them, and watch the preview.</p>
+    </div>
+    <button type="button" class="utop hidden" id="userBtn">Users</button>
+  </div>
 
   <div class="card hidden" id="login">
     <label for="pw" style="margin-top:0">Admin password</label>
@@ -83,42 +90,29 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
 
   <div id="app" class="hidden">
     <div class="card">
-      <div class="bar">
-        <div>
-          <label for="scope" style="margin-top:0">Settings for</label>
-          <select id="scope">
-            <option value="subaccounts">Sub-accounts</option>
-            <option value="users">Users (in every sub-account)</option>
-            <option value="everyone">Everyone (all sub-accounts and users)</option>
-          </select>
+      <div id="locBox">
+        <label for="locSearch" style="margin-top:0">Sub-accounts <span class="hint">tick one or more</span></label>
+        <input type="text" id="locSearch" placeholder="Search sub-accounts" autocomplete="off">
+        <div id="locList" class="ulist" style="margin-top:6px"></div>
+        <div class="ubtns">
+          <button type="button" class="mini" id="lAll">Select all shown</button>
+          <button type="button" class="mini" id="lNone">Clear</button>
+          <span id="locCount" class="hint"></span>
         </div>
-        <div>
-          <div id="locBox">
-            <label for="locSearch" style="margin-top:0">Sub-accounts <span class="hint">tick one or more</span></label>
-            <input type="text" id="locSearch" placeholder="Search sub-accounts" autocomplete="off">
-            <div id="locList" class="ulist" style="margin-top:6px"></div>
-            <div class="ubtns">
-              <button type="button" class="mini" id="lAll">Select all shown</button>
-              <button type="button" class="mini" id="lNone">Clear</button>
-              <span id="locCount" class="hint"></span>
-            </div>
-            <div class="hint" style="margin-top:6px">The form shows the first ticked sub-account's settings. Saving copies the form to every ticked sub-account.</div>
-          </div>
-          <div id="userBox" class="hidden">
-            <label style="margin-top:0">Users <span class="hint">tick one or more</span></label>
-            <div id="userList" class="ulist"></div>
-            <div class="ubtns">
-              <button type="button" class="mini" id="uAll">Select all</button>
-              <button type="button" class="mini" id="uNone">Clear</button>
-              <span id="userCount" class="hint"></span>
-            </div>
-            <input type="text" id="uid" placeholder="Other users: id=Name, id=Name" style="margin-top:8px">
-            <div class="hint" style="margin-top:6px">The form shows the first ticked user's settings. Saving copies the form to every ticked user.</div>
-          </div>
-          <div id="everyoneNote" class="hidden hint" style="margin-top:6px">These settings apply to every sub-account and user. A sub-account can still override them.</div>
-          <div id="srcNote" class="hint" style="margin-top:6px"></div>
-        </div>
+        <div class="hint" style="margin-top:6px">The form shows the first ticked sub-account's settings. Saving copies the form to every ticked sub-account.</div>
       </div>
+      <div id="userBox" class="hidden">
+        <label style="margin-top:0">Users <span class="hint">tick one or more</span></label>
+        <div id="userList" class="ulist"></div>
+        <div class="ubtns">
+          <button type="button" class="mini" id="uAll">Select all</button>
+          <button type="button" class="mini" id="uNone">Clear</button>
+          <span id="userCount" class="hint"></span>
+        </div>
+        <input type="text" id="uid" placeholder="Other users: id=Name, id=Name" style="margin-top:8px">
+        <div class="hint" style="margin-top:6px">The form shows the first ticked user's settings. Saving copies the form to every ticked user.</div>
+      </div>
+      <div id="srcNote" class="hint" style="margin-top:6px"></div>
     </div>
 
     <div class="studio hidden" id="studio">
@@ -192,6 +186,8 @@ var pw = sessionStorage.getItem("adminPw") || "";
 var CFG = null;
 var USERS = {};
 var LOCS = [], locSel = [];
+// "subaccounts" (default) or "users" (switched with the Users button, top right)
+var SCOPE = "subaccounts";
 // Names for known users, used when GHL cannot give them. The letters I/l and O/0 look alike in IDs, so they are matched loosely.
 var SEED_NAMES = {
   "zn75wx7Yp68SsLbZ7Ee0": "Arjun Shetty",
@@ -267,6 +263,7 @@ var PRESETS = [
   { n: "Purple", c: "#5b21b6" }, { n: "Green", c: "#166534" }
 ];
 // Top tabs inside each main menu. Saved as "Menu > Tab" in hideTabs / showTabs.
+// Renamed tabs are saved in textReplace under the same "Menu > Tab" key.
 var TABS = [
   ["Conversations", ["Conversations", "Manual Actions", "Trigger Links", "Analytics", "Settings"]],
   ["Calendars", ["Calendar view", "Appointment list view", "Calendar settings"]],
@@ -283,7 +280,7 @@ var TABS = [
 var TABLIST = [], EXTRA_HIDET = [], EXTRA_SHOWT = [];
 TABS.forEach(function (g) {
   g[1].forEach(function (t) {
-    TABLIST.push({ menu: g[0], title: t, key: g[0] + " > " + t, hidden: false, baseHidden: false });
+    TABLIST.push({ menu: g[0], title: t, key: g[0] + " > " + t, hidden: false, baseHidden: false, name: "" });
   });
 });
 // Tabs inside Settings pages. Saved as "Settings > Page > Tab".
@@ -302,7 +299,7 @@ var OPEN = {};
 SETTINGS_TABS.forEach(function (g) {
   g[1].forEach(function (t) {
     var menu = "Settings > " + g[0];
-    TABLIST.push({ menu: menu, title: t, key: menu + " > " + t, hidden: false, baseHidden: false });
+    TABLIST.push({ menu: menu, title: t, key: menu + " > " + t, hidden: false, baseHidden: false, name: "" });
   });
 });
 function tabsOf(m, isSettings) {
@@ -431,7 +428,7 @@ function renderList(boxId, list, arrows, isSettings) {
         bt.onclick = function () {
           var j = i + x[1];
           if (j < 0 || j >= list.length) return;
-                    var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
+          var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
           if (isSettings) { SET_TOUCHED[list[i].title] = true; SET_TOUCHED[list[j].title] = true; SET_DIRTY = true; } else ORDER_DIRTY = true;
           renderRows(); renderPreview();
         };
@@ -449,9 +446,11 @@ function renderList(boxId, list, arrows, isSettings) {
         var tt = document.createElement("span");
         tt.className = "mtitle"; tt.textContent = x.title;
         r.appendChild(tt);
-        var gap = document.createElement("span");
-        gap.className = "rn";
-        r.appendChild(gap);
+        // Rename box for the sub-menu (tab)
+        var rn = document.createElement("input");
+        rn.type = "text"; rn.className = "rn"; rn.placeholder = "Rename"; rn.value = x.name || "";
+        rn.oninput = function () { x.name = rn.value; renderPreview(); };
+        r.appendChild(rn);
         var bd = document.createElement("span");
         bd.className = "badge"; bd.textContent = badgeText(x);
         r.appendChild(bd);
@@ -489,7 +488,7 @@ function renderCustom() {
 }
 function renderRows() {
   renderList("menuList", MENUS, true, false);
-    renderList("settingsList", SETTINGS_MENUS, true, true);
+  renderList("settingsList", SETTINGS_MENUS, true, true);
   renderCustom();
 }
 function bulkBtns(m, tabs) {
@@ -582,7 +581,7 @@ function renderPreview() {
     d.appendChild(hh);
     vis.forEach(function (x) {
       var c = document.createElement("span");
-      c.className = "chip"; c.textContent = x.title;
+      c.className = "chip"; c.textContent = (x.name || "").trim() || x.title;
       d.appendChild(c);
     });
     if (!vis.length) d.appendChild(document.createTextNode("No tabs visible"));
@@ -602,7 +601,7 @@ function loadSettings(s, isDefault) {
   var known = {}, keys = {}, titleKeys = {}, knownTitles = {};
   MENUS.sort(function (a, b) { return DEFAULT_ORDER.indexOf(a.id) - DEFAULT_ORDER.indexOf(b.id); });
   ORDER_DIRTY = false;
-    EXTRA_MOVES = s.moveMenus || [];
+  EXTRA_MOVES = s.moveMenus || [];
   if (!SET_DEFAULT) SET_DEFAULT = SETTINGS_MENUS.map(function (m) { return m.id; });
   SETTINGS_MENUS.sort(function (a, b) { return SET_DEFAULT.indexOf(a.id) - SET_DEFAULT.indexOf(b.id); });
   SET_DIRTY = false; SET_TOUCHED = {};
@@ -647,7 +646,10 @@ function loadSettings(s, isDefault) {
     knownT[m.key] = true;
     m.baseHidden = bT.indexOf(m.key) > -1;
     m.hidden = (hT.indexOf(m.key) > -1 || m.baseHidden) && sT.indexOf(m.key) === -1;
+    m.name = repl[m.key] || "";
   });
+  // tab renames are handled on the tab rows, so keep them out of the "extra" renames
+  Object.keys(EXTRA_REPL).forEach(function (k) { if (knownT[k]) delete EXTRA_REPL[k]; });
   EXTRA_HIDET = hT.filter(function (k) { return !knownT[k]; });
   EXTRA_SHOWT = sT.filter(function (k) { return !knownT[k]; });
   $("logoUrl").value = s.logoUrl || "";
@@ -691,6 +693,11 @@ function collect() {
     if (!n || n === m.title) return;
     if (m.byTitle) tr[keyOf(m)] = n; else names[m.id] = n;
   });
+  // renamed sub-menus (tabs), saved as "Menu > Tab"
+  TABLIST.forEach(function (m) {
+    var n = (m.name || "").trim();
+    if (n && n !== m.title) tr[m.key] = n;
+  });
   s.menuNames = names;
   s.textReplace = tr;
   var hT = [], sT = [];
@@ -700,7 +707,7 @@ function collect() {
   });
   s.hideTabs = uniq(hT.concat(EXTRA_HIDET));
   s.showTabs = uniq(sT.concat(EXTRA_SHOWT));
-    s.settingsOrder = SET_DIRTY ? SETTINGS_MENUS.filter(function (m) { return SET_TOUCHED[m.title]; }).map(function (m) { return m.title; }) : EXTRA_SETORDER;
+  s.settingsOrder = SET_DIRTY ? SETTINGS_MENUS.filter(function (m) { return SET_TOUCHED[m.title]; }).map(function (m) { return m.title; }) : EXTRA_SETORDER;
   s.hideHeadings = [];
   s.moveMenus = buildMoves();
   return s;
@@ -718,9 +725,7 @@ function selectedUsers() {
   return uniq(ids.concat(otherUsers().map(function (x) { return x.id; })));
 }
 function target() {
-  var scope = $("scope").value;
-  if (scope === "everyone") return { scope: "default", id: "all", ids: ["all"] };
-  if (scope === "users") {
+  if (SCOPE === "users") {
     var ids = selectedUsers();
     return { scope: "users", id: ids[0] || "", ids: ids };
   }
@@ -734,8 +739,8 @@ function fill() {
   if (!t.id) { $("studio").classList.add("hidden"); return; }
   api("config").then(function (cfg) {
     CFG = cfg;
-    var cur = t.scope === "default" ? (cfg.default || {}) : ((cfg[t.scope] || {})[t.id] || {});
-    loadSettings(cur, t.scope === "default");
+    var cur = ((cfg[t.scope] || {})[t.id] || {});
+    loadSettings(cur, false);
     $("studio").classList.remove("hidden");
   }).catch(function (e) { say(e.message, "err"); });
 }
@@ -781,11 +786,6 @@ function locChanged() {
   $("locCount").textContent = locSel.length ? locSel.length + " selected" : "";
   if ((locSel[0] || "") !== lastFill) fill();
 }
-function addOpt(sel, value, text) {
-  var o = document.createElement("option");
-  o.value = value; o.textContent = text;
-  sel.appendChild(o);
-}
 function buildUsers(checked) {
   checked = checked || [];
   var ul = $("userList");
@@ -820,6 +820,7 @@ function start() {
   api("locations").then(function (list) {
     $("login").classList.add("hidden");
     $("app").classList.remove("hidden");
+    $("userBtn").classList.remove("hidden");
     list.sort(function (a, b) { return a.name.localeCompare(b.name); });
     LOCS = list;
     buildLocs();
@@ -835,6 +836,7 @@ function start() {
   }).catch(function (e) {
     sessionStorage.removeItem("adminPw");
     $("app").classList.add("hidden");
+    $("userBtn").classList.add("hidden");
     $("login").classList.remove("hidden");
     $("msg1").textContent = pw ? e.message : "";
   });
@@ -846,18 +848,19 @@ $("go").onclick = function () {
   $("msg1").textContent = "";
   start();
 };
-$("scope").onchange = function () {
-  var sc = $("scope").value;
+// Sub-accounts (default) <-> Users, switched with the button at the top right
+function setScope(sc) {
+  SCOPE = sc;
   $("locBox").classList.toggle("hidden", sc !== "subaccounts");
   $("userBox").classList.toggle("hidden", sc !== "users");
-  $("everyoneNote").classList.toggle("hidden", sc !== "everyone");
+  $("userBtn").textContent = sc === "users" ? "\u2190 Sub-accounts" : "Users";
   $("studio").classList.add("hidden");
   lastFill = "";
   say("");
-  if (sc === "everyone") fill();
-  else if (sc === "users") userChanged();
+  if (sc === "users") userChanged();
   else locChanged();
-};
+}
+$("userBtn").onclick = function () { setScope(SCOPE === "users" ? "subaccounts" : "users"); };
 $("locSearch").oninput = buildLocs;
 $("lAll").onclick = function () {
   shownLocs().forEach(function (l) { if (locSel.indexOf(l.id) === -1) locSel.push(l.id); });
