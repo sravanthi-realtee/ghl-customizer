@@ -139,10 +139,10 @@
           "before": "sb_conversations"
         }
       ],
-      "brandColor": "#166534",
+      "brandColor": "#1e293b",
       "textColor": "#ffffff",
-      "activeTextColor": "#166534",
-      "settingsLabelColor": "#166534",
+      "activeTextColor": "#1e293b",
+      "settingsLabelColor": "#1e293b",
       "settingsTitleColor": "#ffffff",
       "whiteIcons": true
     }
