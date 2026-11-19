@@ -17,9 +17,6 @@
       "Automation > Global Workflow Settings",
       "Sites > SEO",
       "Sites > Analytics"
-    ],
-    "hideMenus": [
-      "sb_dashboard"
     ]
   },
   "subaccounts": {
@@ -49,6 +46,7 @@
         "Audit Logs"
       ],
       "hideMenus": [
+        "sb_dashboard",
         "sb_payments",
         "sb_email-marketing",
         "sb_reputation",
@@ -71,6 +69,7 @@
     },
     "PwYRFm0OabsXFwuyjLcF": {
       "hideMenus": [
+        "sb_dashboard",
         "sb_payments",
         "sb_email-marketing",
         "sb_reputation",
