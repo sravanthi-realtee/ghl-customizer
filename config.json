@@ -138,7 +138,13 @@
           "title": "DashBoard",
           "before": "sb_conversations"
         }
-      ]
+      ],
+      "brandColor": "#166534",
+      "textColor": "#ffffff",
+      "activeTextColor": "#166534",
+      "settingsLabelColor": "#166534",
+      "settingsTitleColor": "#ffffff",
+      "whiteIcons": true
     }
   },
   "users": {
