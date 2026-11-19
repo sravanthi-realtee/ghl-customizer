@@ -143,7 +143,8 @@
       "activeTextColor": "#1e293b",
       "settingsLabelColor": "#1e293b",
       "settingsTitleColor": "#ffffff",
-      "whiteIcons": true
+      "whiteIcons": true,
+      "logoUrl": "https://files.leadconnectorhq.com/file/6aff14bfd50d9db796f694c1/serenity-logo.jpeg"
     }
   },
   "users": {
