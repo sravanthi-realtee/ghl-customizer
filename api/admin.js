@@ -1,6 +1,9 @@
-
 const REPO = "vsravanthi-dev/ghl-customizer";
 const FILE = "config.json";
+
+// ==========================================
+// GITHUB API
+// ==========================================
 
 const gh = (path, opt = {}) =>
   fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
@@ -58,7 +61,6 @@ async function writeConfig(cfg, sha, message) {
 
 const isEmpty = (v) =>
   v === "" ||
-  v === false ||
   v == null ||
   (Array.isArray(v) && !v.length) ||
   (
@@ -68,97 +70,176 @@ const isEmpty = (v) =>
   );
 
 // ==========================================
-// FALLBACK SUBACCOUNTS
+// GHL CONFIGURATION
 // ==========================================
 
-const FALLBACK = [
-  {
-    id: "BUgWVdqLMd3RZYncJ0VV",
-    name: "Sidvin Celeste",
-  },
-  {
-    id: "NxLoq60TfQJ0yNAm3tK3",
-    name: "Realtee",
-  },
-  {
-    id: "byaCGrVxZtJJwdTAddVM",
-    name: "Sidvin developers",
-  },
-  {
-    id: "Zi3agfEBlJBtgFbvGEOp",
-    name: "Elpro360.ai",
-  },
-];
+const GHL_BASE =
+  "https://services.leadconnectorhq.com";
 
 const ghlHeaders = () => ({
-  Authorization: "Bearer " + process.env.GHL_TOKEN,
+  Authorization:
+    "Bearer " + (process.env.GHL_TOKEN || "").trim(),
   Version: "2021-07-28",
   Accept: "application/json",
 });
 
 // ==========================================
-// FETCH GHL SUBACCOUNTS
+// GHL ERROR LOGGING
+// ==========================================
+
+async function logGhlError(label, response, skip) {
+  let message = "";
+
+  try {
+    const data = await response.json();
+
+    message = String(
+      data.message ||
+      data.error ||
+      data.statusCode ||
+      "No error message returned"
+    ).slice(0, 500);
+
+    const token = (process.env.GHL_TOKEN || "").trim();
+
+    if (token) {
+      message = message.split(token).join("[REDACTED]");
+    }
+  } catch (_) {
+    message = "Non-JSON error response";
+  }
+
+  console.error(label, {
+    status: response.status,
+    message,
+    skip,
+  });
+
+  return label + " " + response.status;
+}
+
+// ==========================================
+// FETCH ALL GHL SUBACCOUNTS
 // ==========================================
 
 async function getLocations() {
-  const token = process.env.GHL_TOKEN;
-  const company = process.env.GHL_COMPANY_ID;
+  const token =
+    (process.env.GHL_TOKEN || "").trim();
+
+  const company =
+    (process.env.GHL_COMPANY_ID || "").trim();
 
   if (!token || !company) {
+    console.error(
+      "GHL_TOKEN or GHL_COMPANY_ID missing"
+    );
+
     return {
-      list: FALLBACK,
-      source: "fallback",
-      error: "env not set",
+      list: [],
+      source: "none",
+      error: "GHL environment variables missing",
     };
   }
 
-  const out = [];
-  let error = "";
+  const accounts = new Map();
+
+  const limit = 100;
+
+  let skip = 0;
 
   try {
-    for (let skip = 0; skip < 2000; skip += 100) {
+    while (true) {
+      const params = new URLSearchParams({
+        companyId: company,
+        limit: String(limit),
+        skip: String(skip),
+      });
+
       const r = await fetch(
-        "https://services.leadconnectorhq.com/locations/search?companyId=" +
-          encodeURIComponent(company) +
-          "&limit=100&skip=" +
-          skip,
+        GHL_BASE +
+          "/locations/search?" +
+          params.toString(),
         {
+          method: "GET",
           headers: ghlHeaders(),
+          cache: "no-store",
         }
       );
 
       if (!r.ok) {
-        error = "GHL " + r.status;
-        break;
+        const error = await logGhlError(
+          "GHL Locations API failed",
+          r,
+          skip
+        );
+
+        return {
+          list: [],
+          source: "none",
+          error,
+        };
       }
 
       const j = await r.json();
-      const list = j.locations || [];
 
-      list.forEach((l) =>
-        out.push({
-          id: l.id,
-          name: l.name,
-        })
-      );
-
-      if (list.length < 100) break;
-    }
-  } catch (e) {
-    error = e.message;
-  }
-
-  return out.length
-    ? {
-        list: out,
-        source: "ghl",
-        error: "",
+      if (!Array.isArray(j.locations)) {
+        throw new Error(
+          "Invalid GHL locations response"
+        );
       }
-    : {
-        list: FALLBACK,
-        source: "fallback",
-        error: error || "no sub-accounts returned",
-      };
+
+      const list = j.locations;
+
+      if (!list.length) break;
+
+      const previousSize = accounts.size;
+
+      list.forEach((l) => {
+        if (l.id) {
+          accounts.set(l.id, {
+            id: l.id,
+            name: l.name || l.id,
+          });
+        }
+      });
+
+      if (accounts.size === previousSize) {
+        throw new Error(
+          "GHL pagination returned duplicate accounts"
+        );
+      }
+
+      skip += list.length;
+
+      if (list.length < limit) break;
+    }
+
+    const list = Array.from(accounts.values()).sort(
+      (a, b) => a.name.localeCompare(b.name)
+    );
+
+    console.info("GHL locations fetched", {
+      count: list.length,
+    });
+
+    return {
+      list,
+      source: "ghl",
+      error: "",
+    };
+
+  } catch (e) {
+    console.error(
+      "GHL locations exception:",
+      e.message
+    );
+
+    return {
+      list: [],
+      source: "none",
+      error: e.message,
+    };
+  }
 }
 
 // ==========================================
@@ -178,8 +259,11 @@ const userName = (u) =>
   ).trim();
 
 async function getUsers() {
-  const token = process.env.GHL_TOKEN;
-  const company = process.env.GHL_COMPANY_ID;
+  const token =
+    (process.env.GHL_TOKEN || "").trim();
+
+  const company =
+    (process.env.GHL_COMPANY_ID || "").trim();
 
   if (!token) {
     return {
@@ -189,97 +273,144 @@ async function getUsers() {
     };
   }
 
-  const map = {};
+  const map = new Map();
 
-  const add = (list) =>
+  const add = (list) => {
     (list || []).forEach((u) => {
       if (u.id) {
-        map[u.id] = userName(u) || "User " + u.id;
+        map.set(
+          u.id,
+          userName(u) || "User " + u.id
+        );
       }
     });
+  };
 
   let error = "";
 
   try {
     if (company) {
-      for (let skip = 0; skip < 2000; skip += 100) {
+      let skip = 0;
+
+      const limit = 100;
+
+      while (true) {
+        const params = new URLSearchParams({
+          companyId: company,
+          limit: String(limit),
+          skip: String(skip),
+        });
+
         const r = await fetch(
-          "https://services.leadconnectorhq.com/users/search?companyId=" +
-            encodeURIComponent(company) +
-            "&limit=100&skip=" +
-            skip,
+          GHL_BASE +
+            "/users/search?" +
+            params.toString(),
           {
             headers: ghlHeaders(),
+            cache: "no-store",
           }
         );
 
         if (!r.ok) {
-          error = "users/search " + r.status;
+          error = await logGhlError(
+            "GHL Users API failed",
+            r,
+            skip
+          );
+
           break;
         }
 
         const j = await r.json();
+
         const list = j.users || [];
+
+        if (!list.length) break;
+
+        const previousSize = map.size;
 
         add(list);
 
-        if (list.length < 100) break;
+        if (map.size === previousSize) {
+          error = "Duplicate users pagination";
+          break;
+        }
+
+        skip += list.length;
+
+        if (list.length < limit) break;
       }
     }
   } catch (e) {
     error = e.message;
+
+    console.error(
+      "GHL users exception:",
+      error
+    );
   }
 
   // Backup: fetch users from each subaccount
 
-  if (!Object.keys(map).length) {
+  if (!map.size) {
     try {
-      const locs = (await getLocations()).list;
+      const locations = await getLocations();
+
+      const locs = locations.list;
+
+      if (locations.error) {
+        error = error || locations.error;
+      }
 
       for (const l of locs) {
         const r = await fetch(
-          "https://services.leadconnectorhq.com/users/?locationId=" +
+          GHL_BASE +
+            "/users/?locationId=" +
             encodeURIComponent(l.id),
           {
             headers: ghlHeaders(),
+            cache: "no-store",
           }
         );
 
         if (r.ok) {
-          add((await r.json()).users);
+          const j = await r.json();
+
+          add(j.users || []);
         } else {
-          error = error || "users " + r.status;
+          error = error || "GHL users " + r.status;
         }
       }
+
     } catch (e) {
       error = error || e.message;
     }
   }
 
-  const list = Object.keys(map)
-    .map((id) => ({
+  const list = Array.from(map.entries())
+    .map(([id, name]) => ({
       id,
-      name: map[id],
+      name,
     }))
     .sort((a, b) =>
       a.name.localeCompare(b.name)
     );
 
-  return list.length
-    ? {
-        list,
-        source: "ghl",
-        error: "",
-      }
-    : {
-        list: [],
-        source: "none",
-        error: error || "no users returned",
-      };
+  console.info("GHL users fetched", {
+    count: list.length,
+  });
+
+  return {
+    list,
+    source: list.length ? "ghl" : "none",
+    error: error || (
+      list.length ? "" : "No users returned"
+    ),
+  };
 }
 
 // ==========================================
-// NEW: WEBAPP BRANDING CONFIGURATION
+// WEBAPP BRANDING CONFIGURATION
 // ==========================================
 
 async function getWebappBranding(locationId) {
@@ -289,8 +420,6 @@ async function getWebappBranding(locationId) {
 
   const locationConfig =
     cfg.subaccounts?.[locationId] || {};
-
-  // Subaccount settings override default settings
 
   const branding = {
     ...defaultConfig,
@@ -338,17 +467,47 @@ async function getWebappBranding(locationId) {
 }
 
 // ==========================================
+// SECURE PASSWORD COMPARISON
+// ==========================================
+
+const crypto = require("crypto");
+
+function secureEqual(a, b) {
+  if (
+    typeof a !== "string" ||
+    typeof b !== "string"
+  ) {
+    return false;
+  }
+
+  const x = crypto
+    .createHash("sha256")
+    .update(a)
+    .digest();
+
+  const y = crypto
+    .createHash("sha256")
+    .update(b)
+    .digest();
+
+  return crypto.timingSafeEqual(x, y);
+}
+
+// ==========================================
 // MAIN API HANDLER
 // ==========================================
 
 module.exports = async (req, res) => {
-  res.setHeader("Cache-Control", "no-store");
+  res.setHeader(
+    "Cache-Control",
+    "no-store"
+  );
 
   try {
     const action = req.query.action;
 
     // ======================================
-    // NEW: SECURE WEBAPP BRANDING API
+    // SECURE WEBAPP BRANDING API
     // ======================================
 
     if (action === "webapp-branding") {
@@ -358,7 +517,8 @@ module.exports = async (req, res) => {
         });
       }
 
-      const secret = process.env.WEBAPP_API_KEY;
+      const secret =
+        process.env.WEBAPP_API_KEY;
 
       if (!secret) {
         return res.status(503).json({
@@ -369,13 +529,19 @@ module.exports = async (req, res) => {
       const authorization =
         req.headers.authorization;
 
-      if (authorization !== `Bearer ${secret}`) {
+      if (
+        !secureEqual(
+          authorization,
+          `Bearer ${secret}`
+        )
+      ) {
         return res.status(401).json({
           error: "Unauthorized",
         });
       }
 
-      const locationId = req.query.locationId;
+      const locationId =
+        req.query.locationId;
 
       if (
         typeof locationId !== "string" ||
@@ -397,27 +563,56 @@ module.exports = async (req, res) => {
     }
 
     // ======================================
-    // EXISTING: LOCATIONS
+    // ADMIN PASSWORD VERIFICATION
+    // ======================================
+
+    const adminPassword =
+      process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      return res.status(503).json({
+        error: "ADMIN_PASSWORD is not configured",
+      });
+    }
+
+    const suppliedPassword =
+      req.headers["x-admin-password"];
+
+    if (
+      !secureEqual(
+        suppliedPassword,
+        adminPassword
+      )
+    ) {
+      return res.status(401).json({
+        error: "Unauthorized",
+      });
+    }
+
+    // ======================================
+    // GET ALL SUBACCOUNTS
     // ======================================
 
     if (action === "locations") {
-      return res.json(
-        (await getLocations()).list
-      );
+      const locations =
+        await getLocations();
+
+      return res.json(locations.list);
     }
 
     // ======================================
-    // EXISTING: USERS
+    // GET ALL USERS
     // ======================================
 
     if (action === "users") {
-      return res.json(
-        (await getUsers()).list
-      );
+      const users =
+        await getUsers();
+
+      return res.json(users.list);
     }
 
     // ======================================
-    // EXISTING: STATUS
+    // API STATUS
     // ======================================
 
     if (action === "status") {
@@ -448,17 +643,18 @@ module.exports = async (req, res) => {
     }
 
     // ======================================
-    // EXISTING: GET CONFIGURATION
+    // GET CONFIGURATION
     // ======================================
 
     if (action === "config") {
-      const { cfg } = await readConfig();
+      const { cfg } =
+        await readConfig();
 
       return res.json(cfg);
     }
 
     // ======================================
-    // EXISTING: SAVE CONFIGURATION
+    // SAVE CONFIGURATION
     // ======================================
 
     if (
@@ -476,8 +672,8 @@ module.exports = async (req, res) => {
         Array.isArray(ids) && ids.length
           ? ids
           : id
-          ? [id]
-          : [];
+            ? [id]
+            : [];
 
       if (
         ![
@@ -486,22 +682,51 @@ module.exports = async (req, res) => {
           "default",
         ].includes(scope) ||
         !targets.length ||
-        !settings
+        !settings ||
+        typeof settings !== "object" ||
+        Array.isArray(settings)
       ) {
         return res.status(400).json({
-          error: "Missing data",
+          error: "Missing or invalid data",
         });
       }
 
-      const { cfg, sha } = await readConfig();
+      const invalidKeys = [
+        "__proto__",
+        "constructor",
+        "prototype",
+      ];
+
+      if (
+        targets.some(
+          (tid) =>
+            typeof tid !== "string" ||
+            !/^[a-zA-Z0-9_-]{1,100}$/.test(tid) ||
+            invalidKeys.includes(tid)
+        ) ||
+        Object.keys(settings).some(
+          (key) => invalidKeys.includes(key)
+        )
+      ) {
+        return res.status(400).json({
+          error: "Invalid configuration keys",
+        });
+      }
+
+      const { cfg, sha } =
+        await readConfig();
 
       targets.forEach((tid) => {
         let cur;
 
         if (scope === "default") {
-          cur = Object.assign({}, cfg.default);
+          cur = Object.assign(
+            {},
+            cfg.default
+          );
         } else {
-          cfg[scope] = cfg[scope] || {};
+          cfg[scope] =
+            cfg[scope] || {};
 
           cur = Object.assign(
             {},
@@ -519,8 +744,10 @@ module.exports = async (req, res) => {
 
         if (scope === "default") {
           cfg.default = cur;
+
         } else if (Object.keys(cur).length) {
           cfg[scope][tid] = cur;
+
         } else {
           delete cfg[scope][tid];
         }
@@ -542,7 +769,7 @@ module.exports = async (req, res) => {
     }
 
     // ======================================
-    // EXISTING: BULK SHOW / HIDE MENUS
+    // BULK SHOW / HIDE MENUS
     // ======================================
 
     if (
@@ -566,20 +793,24 @@ module.exports = async (req, res) => {
         });
       }
 
-      const key = byTitle ? title : id;
+      const key =
+        byTitle ? title : id;
 
-      const hideField = byTitle
-        ? "hideMenuTitles"
-        : "hideMenus";
+      const hideField =
+        byTitle
+          ? "hideMenuTitles"
+          : "hideMenus";
 
       const without = (arr) =>
         (arr || []).filter(
           (x) => x !== key
         );
 
-      const { cfg, sha } = await readConfig();
+      const { cfg, sha } =
+        await readConfig();
 
-      cfg.default = cfg.default || {};
+      cfg.default =
+        cfg.default || {};
 
       cfg.default[hideField] =
         without(cfg.default[hideField]);
@@ -609,7 +840,8 @@ module.exports = async (req, res) => {
           Object.keys(
             cfg[scope] || {}
           ).forEach((k) => {
-            const o = cfg[scope][k];
+            const o =
+              cfg[scope][k];
 
             [
               "hideMenus",
@@ -660,8 +892,13 @@ module.exports = async (req, res) => {
     });
 
   } catch (e) {
+    console.error(
+      "Admin API error:",
+      e.message
+    );
+
     return res.status(500).json({
-      error: e.message,
+      error: "Internal server error",
     });
   }
 };
