@@ -1,5 +1,8 @@
+
 const REPO = "vsravanthi-dev/ghl-customizer";
 const FILE = "config.json";
+
+const GHL_BASE = "https://services.leadconnectorhq.com";
 
 // ==========================================
 // GITHUB API
@@ -70,11 +73,8 @@ const isEmpty = (v) =>
   );
 
 // ==========================================
-// GHL CONFIGURATION
+// GHL HEADERS
 // ==========================================
-
-const GHL_BASE =
-  "https://services.leadconnectorhq.com";
 
 const ghlHeaders = () => ({
   Authorization:
@@ -467,7 +467,7 @@ async function getWebappBranding(locationId) {
 }
 
 // ==========================================
-// SECURE PASSWORD COMPARISON
+// SECURE WEBAPP API KEY COMPARISON
 // ==========================================
 
 const crypto = require("crypto");
@@ -563,33 +563,6 @@ module.exports = async (req, res) => {
     }
 
     // ======================================
-    // ADMIN PASSWORD VERIFICATION
-    // ======================================
-
-    const adminPassword =
-      process.env.ADMIN_PASSWORD;
-
-    if (!adminPassword) {
-      return res.status(503).json({
-        error: "ADMIN_PASSWORD is not configured",
-      });
-    }
-
-    const suppliedPassword =
-      req.headers["x-admin-password"];
-
-    if (
-      !secureEqual(
-        suppliedPassword,
-        adminPassword
-      )
-    ) {
-      return res.status(401).json({
-        error: "Unauthorized",
-      });
-    }
-
-    // ======================================
     // GET ALL SUBACCOUNTS
     // ======================================
 
@@ -622,8 +595,7 @@ module.exports = async (req, res) => {
       ]);
 
       return res.json({
-        passwordSet:
-          !!process.env.ADMIN_PASSWORD,
+        passwordSet: false,
 
         webappIntegrationConfigured:
           !!process.env.WEBAPP_API_KEY,
