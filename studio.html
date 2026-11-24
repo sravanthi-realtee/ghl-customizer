@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,12 +81,6 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
     </div>
   </div>
 
-  <div class="card hidden" id="login">
-    <label for="pw" style="margin-top:0">Admin password</label>
-    <input type="password" id="pw" autocomplete="current-password">
-    <button class="go" id="go">Sign in</button>
-    <div id="msg1" class="err"></div>
-  </div>
 
   <div id="app" class="hidden">
     <div class="card">
@@ -121,7 +116,7 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
           <button type="button" class="tab on" id="tabMenu">Menu</button>
           <button type="button" class="tab" id="tabSub">Settings menu</button>
           <button type="button" class="tab" id="tabTheme">Theme</button>
-          <button type="button" class="tab" id="tabWebapp">Web App Branding</button>
+<button type="button" class="tab" id="tabWebapp">Web App Branding</button>
           <button type="button" class="utop" id="userBtn2" style="margin-left:auto">Users</button>
         </div>
 
@@ -166,25 +161,33 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
           <div class="presets" id="presets"></div>
         </div>
 
-        <div id="panelWebapp" class="hidden">
-          <p class="hint">Branding for the selected sub-account's CRM web app. Logo and colours are shared with the Theme tab. Custom URL requires separate domain configuration.</p>
-          <label for="appName">App Name</label>
-          <input type="text" id="appName" placeholder="Realtee">
-          <label for="appUrl">Custom App URL</label>
-          <input type="text" id="appUrl" placeholder="https://crm.example.com">
-          <label for="faviconUrl">Favicon URL</label>
-          <input type="text" id="faviconUrl" placeholder="https://...">
-          <label for="webLogo">Logo URL</label>
-          <input type="text" id="webLogo" placeholder="https://...">
-          <label for="webColor">Brand Colour</label>
-          <input type="color" id="webColor" value="#1e293b">
-          <label for="webText">Menu Text Colour</label>
-          <input type="color" id="webText" value="#ffffff">
-          <label for="webActive">Selected Menu Text Colour</label>
-          <input type="color" id="webActive" value="#1e293b">
-          <p class="hint">The CRM reads saved branding through its server-side integration. The API key is never entered here.</p>
-        </div>
-        <button class="go" id="save">Save changes</button>
+     <div id="panelWebapp" class="hidden">
+
+  <label for="appName" style="margin-top:0">
+    App Name
+  </label>
+  <input type="text" id="appName" placeholder="Realtee">
+
+  <label for="appUrl">App URL</label>
+  <input type="text" id="appUrl" placeholder="https://crm.example.com">
+
+  <label for="faviconUrl">Favicon URL</label>
+  <input type="text" id="faviconUrl" placeholder="https://...">
+
+  <h3>Logo & Colours</h3>
+  <div class="hint">
+    Web App uses the logo and colours configured in the Theme tab.
+  </div>
+
+  <button type="button" class="mini"
+    style="margin-top:12px"
+    onclick="tab('theme')">
+    Edit Logo & Colours
+  </button>
+
+</div>
+
+<button class="go" id="save">Save changes</button>
         <div id="msg" role="status"></div>
       </div>
 
@@ -202,7 +205,6 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);ou
 
 <script>
 var $ = function (id) { return document.getElementById(id); };
-var pw = sessionStorage.getItem("adminPw") || "";
 var CFG = null;
 var USERS = {};
 var LOCS = [], locSel = [];
@@ -337,7 +339,7 @@ var HEX = /^#[0-9a-f]{6}$/i;
 function api(action, body) {
   return fetch("/api/admin?action=" + action, {
     method: body ? "POST" : "GET",
-    headers: { "x-admin-password": pw, "Content-Type": "application/json" },
+  headers: { "Content-Type": "application/json" },
     body: body ? JSON.stringify(body) : undefined
   }).then(function (r) {
     return r.json().then(function (j) {
@@ -569,13 +571,6 @@ function renderPreview() {
     im.src = logo; im.alt = "";
     lb.appendChild(im);
   }
-  if (!$("panelWebapp").classList.contains("hidden")) {
-    var name = document.createElement("div");
-    name.style.color = txt;
-    name.style.fontWeight = "700";
-    name.textContent = $("appName").value.trim() || dflt("appName", "Realtee");
-    lb.appendChild(name);
-  }
   var list = $("pvList");
   list.innerHTML = "";
   var first = true;
@@ -679,13 +674,12 @@ function loadSettings(s, isDefault) {
   Object.keys(EXTRA_REPL).forEach(function (k) { if (knownT[k]) delete EXTRA_REPL[k]; });
   EXTRA_HIDET = hT.filter(function (k) { return !knownT[k]; });
   EXTRA_SHOWT = sT.filter(function (k) { return !knownT[k]; });
-  $("logoUrl").value = s.logoUrl || "";
+$("logoUrl").value = s.logoUrl || "";
+$("appName").value = s.appName || "";
+$("appUrl").value = s.appUrl || "";
+$("faviconUrl").value = s.faviconUrl || "";
   COLORS.forEach(function (c) { setColor(c[0], s[c[0]]); });
   $("whiteIcons").checked = !!s.whiteIcons;
-  $("appName").value = s.appName || "";
-  $("appUrl").value = s.appUrl || "";
-  $("faviconUrl").value = s.faviconUrl || "";
-  syncWebFields();
   renderRows();
   renderPreview();
 }
@@ -703,12 +697,13 @@ function collect() {
   var s = {};
   COLORS.forEach(function (c) { s[c[0]] = $(c[0]).value.trim(); });
   s.logoUrl = $("logoUrl").value.trim();
-  if (SCOPE === "subaccounts") {
-    s.appName = $("appName").value.trim();
-    s.appUrl = $("appUrl").value.trim();
-    s.faviconUrl = $("faviconUrl").value.trim();
-  }
-  s.whiteIcons = $("whiteIcons").checked;
+s.whiteIcons = $("whiteIcons").checked;
+
+if (SCOPE === "subaccounts") {
+  s.appName = $("appName").value.trim();
+  s.appUrl = $("appUrl").value.trim();
+  s.faviconUrl = $("faviconUrl").value.trim();
+}
   var hideIds = [], hideTitles = [], showKeys = [], sels = [];
   allMenus().concat(CUSTOM).forEach(function (m) {
     var kind = m.kind || (m.byTitle ? "title" : "id");
@@ -849,53 +844,73 @@ function showStatus(st) {
   parts.push(st.users.source === "ghl"
     ? "Users load automatically (" + st.users.count + ")."
     : "Users could not be loaded from GHL" + (st.users.error ? " (" + st.users.error + ")" : "") + ". Add users below as id=Name.");
-  if (!st.passwordSet) parts.push("No password is set, so anyone with this link can change branding.");
+
   $("srcNote").textContent = parts.join(" ");
 }
 
 function start() {
   api("locations").then(function (list) {
-    $("login").classList.add("hidden");
     $("app").classList.remove("hidden");
     syncUserBtn();
-    list.sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+    list.sort(function (a, b) {
+      return a.name.localeCompare(b.name);
+    });
+
     LOCS = list;
     buildLocs();
+
     return api("users").then(function (u) {
       USERS = {};
-      if (Array.isArray(u)) u.forEach(function (x) { USERS[x.id] = x.name; });
+
+      if (Array.isArray(u)) {
+        u.forEach(function (x) {
+          USERS[x.id] = x.name;
+        });
+      }
+
     }).catch(function () {});
-  }).then(function () { return api("config"); })
-  .then(function (cfg) {
+
+  }).then(function () {
+    return api("config");
+
+  }).then(function (cfg) {
     CFG = cfg;
     buildUsers();
-    return api("status").then(showStatus).catch(function () {});
+
+    return api("status")
+      .then(showStatus)
+      .catch(function () {});
+
   }).catch(function (e) {
-    sessionStorage.removeItem("adminPw");
-    $("app").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    $("srcNote").textContent = e.message;
     syncUserBtn();
-    $("login").classList.remove("hidden");
-    $("msg1").textContent = pw ? e.message : "";
   });
 }
 
-$("go").onclick = function () {
-  pw = $("pw").value;
-  sessionStorage.setItem("adminPw", pw);
-  $("msg1").textContent = "";
-  start();
-};
+
 // Sub-accounts (default) <-> Users, switched with the button at the top right
 function setScope(sc) {
   SCOPE = sc;
-  $("tabWebapp").classList.toggle("hidden", sc !== "subaccounts");
-  if (sc === "users") tab("menu");
+
+  $("tabWebapp").classList.toggle(
+    "hidden", sc !== "subaccounts"
+  );
+
+  if (sc === "users" &&
+      !$("panelWebapp").classList.contains("hidden")) {
+    tab("menu");
+  }
+
   $("locBox").classList.toggle("hidden", sc !== "subaccounts");
   $("userBox").classList.toggle("hidden", sc !== "users");
   $("studio").classList.add("hidden");
+
   lastFill = "";
   say("");
   syncUserBtn();
+
   if (sc === "users") userChanged();
   else locChanged();
 }
@@ -938,50 +953,31 @@ $("bSetHide").onclick = function () { setAll(SETTINGS_MENUS, true); };
 $("customAdd").onclick = addCustom;
 $("customIn").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); addCustom(); } };
 
-function syncWebFields() {
-  $("webLogo").value = $("logoUrl").value;
-  $("webColor").value = colorVal("brandColor", "#1e293b");
-  $("webText").value = colorVal("textColor", "#ffffff");
-  $("webActive").value = colorVal("activeTextColor", "#1e293b");
-}
 function tab(which) {
-  if (which === "webapp" && SCOPE !== "subaccounts") which = "menu";
-  $("panelWebapp").classList.toggle("hidden", which !== "webapp");
-  $("tabWebapp").classList.toggle("on", which === "webapp");
-  if (which === "webapp") syncWebFields();
   $("panelMenu").classList.toggle("hidden", which !== "menu");
   $("panelTheme").classList.toggle("hidden", which !== "theme");
   $("panelSub").classList.toggle("hidden", which !== "sub");
+  $("panelWebapp").classList.toggle("hidden", which !== "webapp");
+
   $("tabMenu").classList.toggle("on", which === "menu");
   $("tabSub").classList.toggle("on", which === "sub");
   $("tabTheme").classList.toggle("on", which === "theme");
+  $("tabWebapp").classList.toggle("on", which === "webapp");
+
   renderPreview();
 }
+
 $("tabMenu").onclick = function () { tab("menu"); };
 $("tabSub").onclick = function () { tab("sub"); };
 $("tabTheme").onclick = function () { tab("theme"); };
-$("logoUrl").oninput = renderPreview;
 $("tabWebapp").onclick = function () { tab("webapp"); };
-$("webLogo").oninput = function () { $("logoUrl").value = this.value; renderPreview(); };
-[["webColor","brandColor"],["webText","textColor"],["webActive","activeTextColor"]].forEach(function (pair) {
-  $(pair[0]).oninput = function () { setColor(pair[1], this.value); renderPreview(); };
-});
-$("appName").oninput = renderPreview;
+$("logoUrl").oninput = renderPreview;
 
 $("save").onclick = function () {
   var t = target();
   if (!t.ids.length) { say("Choose who the settings are for first.", "err"); return; }
   if (t.scope === "subaccounts" && t.ids.length > 1 &&
       !confirm("Copy these settings to " + t.ids.length + " sub-accounts? Their current settings will be replaced.")) return;
-  if (t.scope === "subaccounts") {
-    var urls = ["appUrl", "faviconUrl", "logoUrl"];
-    for (var i = 0; i < urls.length; i++) {
-      var value = $(urls[i]).value.trim();
-      if (!value) continue;
-      try { if (new URL(value).protocol !== "https:") throw new Error(); }
-      catch (_) { say("Enter a valid HTTPS URL for " + urls[i] + ".", "err"); return; }
-    }
-  }
   say("Saving...");
   // names typed as id=Name are saved with the user, one by one
   var named = t.scope === "users" ? otherUsers().filter(function (x) { return x.name; }) : [];
