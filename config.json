@@ -1,11 +1,25 @@
 {
   "default": {
+  "appName": "Realtee",
+  "appUrl": "",
+  "faviconUrl": "",
     "brandColor": "#1e293b",
     "textColor": "#ffffff",
     "activeTextColor": "#1e293b",
     "settingsLabelColor": "#1e293b",
     "settingsTitleColor": "#ffffff",
     "whiteIcons": true,
+    "webappFeatures": {
+  "dashboard": true,
+  "conversations": true,
+  "calendars": true,
+  "contacts": true,
+  "opportunities": true,
+  "mediaStorage": true,
+  "payments": false,
+  "marketing": false,
+  "automation": false
+},
     "agencyLogoUrl": "https://msgsndr-private.storage.googleapis.com/companyPhotos/01M65KBW7F7V2DXGZ021HTRS99_4VWDYY_0cfc89f1-2893-4b15-b943-d833807729f7.png",
     "hideTabs": [
       "Conversations > Manual Actions",
@@ -20,7 +34,10 @@
     ]
   },
   "subaccounts": {
-    "BUgWVdqLMd3RZYncJ0VV": {
+  "BUgWVdqLMd3RZYncJ0VV": {
+  "appName": "Sidvin Celeste",
+  "appUrl": "https://crm-sidvin.realtee.ai",
+  "faviconUrl": "",
       "logoUrl": "https://ghl-customizer-three.vercel.app/sidvin-celeste-logo-700x360.png",
       "menuNames": {
         "sb_contacts": "clients",
@@ -62,12 +79,18 @@
       ]
     },
     "NxLoq60TfQJ0yNAm3tK3": {
+  "appName": "Realtee",
+  "appUrl": "",
+  "faviconUrl": "",
       "hideMenus": [
         "sb_payments",
         "sb_app-media"
       ]
     },
     "PwYRFm0OabsXFwuyjLcF": {
+  "appName": "Sidvin Serenity",
+  "appUrl": "",
+  "faviconUrl": "",
       "hideMenus": [
         "sb_dashboard",
         "sb_payments",
