@@ -88,8 +88,6 @@
     },
     "PwYRFm0OabsXFwuyjLcF": {
       "appName": "Sidvin Serenity",
-      "appUrl": "",
-      "faviconUrl": "",
       "hideMenus": [
         "sb_dashboard",
         "sb_payments",
@@ -124,8 +122,12 @@
           "before": "sb_settings"
         },
         {
-          "title": "sb_app-media",
+          "title": "sb_whatsapp",
           "before": "WA QR2"
+        },
+        {
+          "title": "sb_app-media",
+          "before": "sb_whatsapp"
         },
         {
           "title": "sb_sites",
