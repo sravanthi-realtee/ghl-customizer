@@ -40,7 +40,6 @@ const isEmpty = (v) =>
   (Array.isArray(v) && !v.length) ||
   (typeof v === "object" && !Array.isArray(v) && !Object.keys(v).length);
 
-// Used only if GHL_TOKEN / GHL_COMPANY_ID are not set, or the GHL call fails
 const FALLBACK = [
   { id: "BUgWVdqLMd3RZYncJ0VV", name: "Sidvin Celeste" },
   { id: "NxLoq60TfQJ0yNAm3tK3", name: "Realtee" },
@@ -54,7 +53,6 @@ const ghlHeaders = () => ({
   Accept: "application/json",
 });
 
-// Returns { list, source: "ghl" | "fallback", error }
 async function getLocations() {
   const token = process.env.GHL_TOKEN;
   const company = process.env.GHL_COMPANY_ID;
@@ -86,10 +84,7 @@ async function getLocations() {
       const list = j.locations || [];
 
       list.forEach((l) =>
-        out.push({
-          id: l.id,
-          name: l.name
-        })
+        out.push({ id: l.id, name: l.name })
       );
 
       if (list.length < 100) break;
@@ -99,11 +94,7 @@ async function getLocations() {
   }
 
   return out.length
-    ? {
-        list: out,
-        source: "ghl",
-        error: ""
-      }
+    ? { list: out, source: "ghl", error: "" }
     : {
         list: FALLBACK,
         source: "fallback",
@@ -119,7 +110,6 @@ const userName = (u) =>
     ""
   ).trim();
 
-// Returns { list, source: "ghl" | "none", error }
 async function getUsers() {
   const token = process.env.GHL_TOKEN;
   const company = process.env.GHL_COMPANY_ID;
@@ -135,8 +125,7 @@ async function getUsers() {
 
   const add = (list) =>
     (list || []).forEach((u) => {
-      if (u.id)
-        map[u.id] = userName(u) || "User " + u.id;
+      if (u.id) map[u.id] = userName(u) || "User " + u.id;
     });
 
   let error = "";
@@ -167,7 +156,7 @@ async function getUsers() {
     error = e.message;
   }
 
-  // backup: ask each sub-account for its users
+  // Backup: ask each sub-account for its users
   if (!Object.keys(map).length) {
     try {
       const locs = (await getLocations()).list;
@@ -179,10 +168,8 @@ async function getUsers() {
           { headers: ghlHeaders() }
         );
 
-        if (r.ok)
-          add((await r.json()).users);
-        else
-          error = error || "users " + r.status;
+        if (r.ok) add((await r.json()).users);
+        else error = error || "users " + r.status;
       }
     } catch (e) {
       error = error || e.message;
@@ -190,20 +177,11 @@ async function getUsers() {
   }
 
   const list = Object.keys(map)
-    .map((id) => ({
-      id,
-      name: map[id]
-    }))
-    .sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+    .map((id) => ({ id, name: map[id] }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return list.length
-    ? {
-        list,
-        source: "ghl",
-        error: ""
-      }
+    ? { list, source: "ghl", error: "" }
     : {
         list: [],
         source: "none",
@@ -217,13 +195,8 @@ module.exports = async (req, res) => {
   try {
     const action = req.query.action;
 
-    // ==========================================
-    // WEB APP BRANDING INTEGRATION
-    // Server-to-server API only
-    // ==========================================
-
+    // Web App Branding integration
     if (action === "webapp-branding") {
-
       if (req.method !== "GET") {
         return res.status(405).json({
           error: "Method not allowed"
@@ -240,11 +213,8 @@ module.exports = async (req, res) => {
 
       const crypto = require("crypto");
 
-      const hash = (value) =>
-        crypto
-          .createHash("sha256")
-          .update(value)
-          .digest();
+      const hash = (v) =>
+        crypto.createHash("sha256").update(v).digest();
 
       if (
         !crypto.timingSafeEqual(
@@ -278,68 +248,28 @@ module.exports = async (req, res) => {
       return res.json({
         success: true,
         locationId,
-
         branding: {
           appName: b.appName || "Realtee",
-
           appUrl: b.appUrl || "",
-
           faviconUrl: b.faviconUrl || "",
-
-          logoUrl:
-            b.logoUrl ||
-            b.agencyLogoUrl ||
-            "",
-
-          brandColor:
-            b.brandColor || "#1e293b",
-
-          textColor:
-            b.textColor || "#ffffff",
-
-          activeTextColor:
-            b.activeTextColor ||
-            b.brandColor ||
-            "#1e293b",
-
-          settingsLabelColor:
-            b.settingsLabelColor ||
-            b.brandColor ||
-            "#1e293b",
-
-          settingsTitleColor:
-            b.settingsTitleColor ||
-            "#ffffff",
-
-          whiteIcons:
-            b.whiteIcons ?? false
+          logoUrl: b.logoUrl || b.agencyLogoUrl || "",
+          brandColor: b.brandColor || "#1e293b",
+          textColor: b.textColor || "#ffffff",
+          activeTextColor: b.activeTextColor || "#1e293b",
+          settingsLabelColor: b.settingsLabelColor || "#1e293b",
+          settingsTitleColor: b.settingsTitleColor || "#ffffff",
+          whiteIcons: !!b.whiteIcons
         }
       });
     }
 
-    // ==========================================
-    // ORIGINAL LOCATIONS API
-    // ==========================================
-
     if (action === "locations") {
-      return res.json(
-        (await getLocations()).list
-      );
+      return res.json((await getLocations()).list);
     }
-
-    // ==========================================
-    // ORIGINAL USERS API
-    // ==========================================
 
     if (action === "users") {
-      return res.json(
-        (await getUsers()).list
-      );
+      return res.json((await getUsers()).list);
     }
-
-    // ==========================================
-    // ORIGINAL STATUS API
-    // ==========================================
 
     if (action === "status") {
       const [l, u] = await Promise.all([
@@ -348,46 +278,26 @@ module.exports = async (req, res) => {
       ]);
 
       return res.json({
-        passwordSet: !!process.env.ADMIN_PASSWORD,
-
         locations: {
           source: l.source,
           count: l.list.length,
           error: l.error
         },
-
         users: {
           source: u.source,
           count: u.list.length,
           error: u.error
-        }
+        },
       });
     }
 
-    // ==========================================
-    // ORIGINAL CONFIG API
-    // ==========================================
-
     if (action === "config") {
       const { cfg } = await readConfig();
-
       return res.json(cfg);
     }
 
-    // ==========================================
-    // ORIGINAL SAVE CONFIGURATION
-    // ==========================================
-
-    if (
-      action === "save" &&
-      req.method === "POST"
-    ) {
-      const {
-        scope,
-        id,
-        ids,
-        settings
-      } = req.body || {};
+    if (action === "save" && req.method === "POST") {
+      const { scope, id, ids, settings } = req.body || {};
 
       const targets =
         Array.isArray(ids) && ids.length
@@ -412,67 +322,34 @@ module.exports = async (req, res) => {
         let cur;
 
         if (scope === "default") {
-          cur = Object.assign(
-            {},
-            cfg.default
-          );
+          cur = Object.assign({}, cfg.default);
         } else {
           cfg[scope] = cfg[scope] || {};
-
-          cur = Object.assign(
-            {},
-            cfg[scope][tid]
-          );
+          cur = Object.assign({}, cfg[scope][tid]);
         }
 
         Object.keys(settings).forEach((k) => {
-          if (isEmpty(settings[k])) {
-            delete cur[k];
-          } else {
-            cur[k] = settings[k];
-          }
+          if (isEmpty(settings[k])) delete cur[k];
+          else cur[k] = settings[k];
         });
 
-        if (scope === "default") {
-          cfg.default = cur;
-
-        } else if (Object.keys(cur).length) {
-          cfg[scope][tid] = cur;
-
-        } else {
-          delete cfg[scope][tid];
-        }
+        if (scope === "default") cfg.default = cur;
+        else if (Object.keys(cur).length) cfg[scope][tid] = cur;
+        else delete cfg[scope][tid];
       });
 
       await writeConfig(
         cfg,
         sha,
-        "Update " +
-          scope +
-          " " +
-          targets.join(",") +
-          " (admin page)"
+        "Update " + scope + " " +
+          targets.join(",") + " (admin page)"
       );
 
-      return res.json({
-        ok: true
-      });
+      return res.json({ ok: true });
     }
 
-    // ==========================================
-    // ORIGINAL BULK SHOW / HIDE MENUS
-    // ==========================================
-
-    if (
-      action === "bulk" &&
-      req.method === "POST"
-    ) {
-      const {
-        id,
-        title,
-        byTitle,
-        mode
-      } = req.body || {};
+    if (action === "bulk" && req.method === "POST") {
+      const { id, title, byTitle, mode } = req.body || {};
 
       if (
         !id ||
@@ -484,90 +361,53 @@ module.exports = async (req, res) => {
         });
       }
 
-      const key =
-        byTitle ? title : id;
+      const key = byTitle ? title : id;
+      const hideField = byTitle ? "hideMenuTitles" : "hideMenus";
+      const without = (arr) => (arr || []).filter((x) => x !== key);
 
-      const hideField =
-        byTitle
-          ? "hideMenuTitles"
-          : "hideMenus";
+      const { cfg, sha } = await readConfig();
 
-      const without = (arr) =>
-        (arr || []).filter(
-          (x) => x !== key
-        );
-
-      const { cfg, sha } =
-        await readConfig();
-
-      cfg.default =
-        cfg.default || {};
-
-      cfg.default[hideField] =
-        without(cfg.default[hideField]);
+      cfg.default = cfg.default || {};
+      cfg.default[hideField] = without(cfg.default[hideField]);
 
       if (mode === "hide") {
         cfg.default[hideField].push(key);
       }
 
-      cfg.default.showMenus =
-        without(cfg.default.showMenus);
+      cfg.default.showMenus = without(cfg.default.showMenus);
 
-      [
-        "hideMenus",
-        "hideMenuTitles",
-        "showMenus"
-      ].forEach((f) => {
-        if (
-          !cfg.default[f] ||
-          !cfg.default[f].length
-        ) {
+      ["hideMenus", "hideMenuTitles", "showMenus"].forEach((f) => {
+        if (!cfg.default[f] || !cfg.default[f].length) {
           delete cfg.default[f];
         }
       });
 
-      ["subaccounts", "users"].forEach(
-        (scope) => {
-          Object.keys(
-            cfg[scope] || {}
-          ).forEach((k) => {
-            const o =
-              cfg[scope][k];
+      ["subaccounts", "users"].forEach((scope) => {
+        Object.keys(cfg[scope] || {}).forEach((k) => {
+          const o = cfg[scope][k];
 
-            [
-              "hideMenus",
-              "hideMenuTitles",
-              "showMenus"
-            ].forEach((f) => {
-              if (Array.isArray(o[f])) {
-                o[f] = o[f].filter(
-                  (x) => x !== key
-                );
+          ["hideMenus", "hideMenuTitles", "showMenus"].forEach((f) => {
+            if (Array.isArray(o[f])) {
+              o[f] = o[f].filter((x) => x !== key);
 
-                if (!o[f].length) {
-                  delete o[f];
-                }
-              }
-            });
-
-            if (!Object.keys(o).length) {
-              delete cfg[scope][k];
+              if (!o[f].length) delete o[f];
             }
           });
-        }
-      );
+
+          if (!Object.keys(o).length) {
+            delete cfg[scope][k];
+          }
+        });
+      });
 
       await writeConfig(
         cfg,
         sha,
         (mode === "hide" ? "Hide " : "Show ") +
-          title +
-          " for all (admin page)"
+          title + " for all (admin page)"
       );
 
-      return res.json({
-        ok: true
-      });
+      return res.json({ ok: true });
     }
 
     res.status(400).json({
