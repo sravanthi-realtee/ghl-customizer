@@ -72,13 +72,26 @@ async function getLocations() {
       const r = await fetch(
         "https://services.leadconnectorhq.com/locations/search?companyId=" +
           encodeURIComponent(company) + "&limit=100&skip=" + skip,
-        { headers: ghlHeaders() }
+      {
+  headers: {
+    ...ghlHeaders(),
+    Version: "2023-02-21"
+  }
+}
       );
 
-      if (!r.ok) {
-        error = "GHL " + r.status;
-        break;
-      }
+     if (!r.ok) {
+  const details = await r.text();
+
+  console.error("GHL Locations API Error:", {
+    status: r.status,
+    details: details,
+    skip: skip
+  });
+
+  error = "GHL " + r.status;
+  break;
+}
 
       const j = await r.json();
       const list = j.locations || [];
