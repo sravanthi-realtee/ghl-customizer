@@ -68,7 +68,7 @@ async function getLocations() {
   let error = "";
 
   try {
-    for (let skip = 0; skip < 2000; skip += 100) {
+   for (let skip = 0; ; skip += 100) {
       const r = await fetch(
         "https://services.leadconnectorhq.com/locations/search?companyId=" +
           encodeURIComponent(company) + "&limit=100&skip=" + skip,
