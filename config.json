@@ -87,19 +87,19 @@
       ]
     },
     "PwYRFm0OabsXFwuyjLcF": {
-      "appName": "Sidvin Serenity",
+      "appName": "Sidvin Celeste",
       "hideMenus": [
         "sb_dashboard",
         "sb_payments",
         "sb_email-marketing",
         "sb_reputation",
         "sb_reporting",
-        "sb_app-marketplace",
         "sb_manage-scoring",
         "sb_manage-preferences",
         "sb_domains-urlRedirects",
         "sb_external-tracking",
         "sb_objects",
+        "sb_labs",
         "sb_saas-billing",
         "sb_conversations_providers"
       ],
@@ -109,66 +109,25 @@
         "Billing",
         "Email Services",
         "Import Data",
+        "Tags",
         "Brand Boards",
         "Audit Logs"
       ],
       "menuNames": {
-        "sb_contacts": "Clients",
-        "sb_opportunities": "Sales Pipeline"
+        "sb_contacts": "clients",
+        "sb_opportunities": "Sales pipeline"
       },
       "moveMenus": [
         {
-          "title": "WA QR2",
-          "before": "sb_settings"
-        },
-        {
-          "title": "sb_whatsapp",
-          "before": "WA QR2"
-        },
-        {
-          "title": "sb_app-media",
-          "before": "sb_whatsapp"
-        },
-        {
-          "title": "sb_sites",
-          "before": "sb_app-media"
-        },
-        {
-          "title": "sb_automation",
-          "before": "sb_sites"
-        },
-        {
-          "title": "AI Agents",
-          "before": "sb_automation"
-        },
-        {
-          "title": "sb_opportunities",
-          "before": "AI Agents"
-        },
-        {
-          "title": "sb_contacts",
-          "before": "sb_opportunities"
-        },
-        {
-          "title": "sb_calendars",
-          "before": "sb_contacts"
-        },
-        {
-          "title": "sb_conversations",
-          "before": "sb_calendars"
-        },
-        {
           "title": "DashBoard",
-          "before": "sb_conversations"
+          "before": "Conversations"
         }
       ],
-      "brandColor": "#1e293b",
-      "textColor": "#ffffff",
-      "activeTextColor": "#1e293b",
-      "settingsLabelColor": "#1e293b",
-      "settingsTitleColor": "#ffffff",
-      "whiteIcons": true,
-      "logoUrl": "https://files.leadconnectorhq.com/file/6aff14bfd50d9db796f694c1/serenity-logo.jpeg"
+      "logoUrl": "https://ghl-customizer-three.vercel.app/sidvin-celeste-logo-700x360.png",
+      "appUrl": "https://crm-sidvin.realtee.ai",
+      "textReplace": {
+        "Opportunities": "Sales Pipeline"
+      }
     }
   },
   "users": {
