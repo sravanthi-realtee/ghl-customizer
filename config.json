@@ -114,7 +114,7 @@
         "Audit Logs"
       ],
       "menuNames": {
-        "sb_contacts": "clients",
+        "sb_contacts": "Clients",
         "sb_opportunities": "Sales pipeline"
       },
       "moveMenus": [
