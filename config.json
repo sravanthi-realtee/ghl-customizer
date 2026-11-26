@@ -39,7 +39,7 @@
       "appUrl": "https://crm-sidvin.realtee.ai",
       "logoUrl": "https://ghl-customizer-three.vercel.app/sidvin-celeste-logo-700x360.png",
       "menuNames": {
-        "sb_contacts": "clients",
+        "sb_contacts": "Clients",
         "sb_opportunities": "Sales pipeline"
       },
       "moveMenus": [
@@ -50,7 +50,7 @@
       ],
       "textReplace": {
         "Opportunities": "Sales Pipeline",
-         "Contacts": "Clients"
+        "Contacts": "Clients"
       },
       "hideMenuTitles": [
         "Memberships",
@@ -128,7 +128,7 @@
       "appUrl": "https://crm-sidvin.realtee.ai",
       "textReplace": {
         "Opportunities": "Sales Pipeline",
-         "Contacts": "Clients"
+        "Contacts": "Clients"
       }
     }
   },
