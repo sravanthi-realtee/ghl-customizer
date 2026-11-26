@@ -49,7 +49,8 @@
         }
       ],
       "textReplace": {
-        "Opportunities": "Sales Pipeline"
+        "Opportunities": "Sales Pipeline",
+         "Contacts": "Clients"
       },
       "hideMenuTitles": [
         "Memberships",
@@ -126,7 +127,8 @@
       "logoUrl": "https://files.leadconnectorhq.com/file/6aff14bfd50d9db796f694c1/serenity-logo.jpeg",
       "appUrl": "https://crm-sidvin.realtee.ai",
       "textReplace": {
-        "Opportunities": "Sales Pipeline"
+        "Opportunities": "Sales Pipeline",
+         "Contacts": "Clients"
       }
     }
   },
